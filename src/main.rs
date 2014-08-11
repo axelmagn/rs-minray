@@ -114,22 +114,22 @@ fn S(o: Vec3, d: Vec3) -> Vec3 {
     let r = d+n * (n % d * -2.0);                             // the half-vector
     
     // Calculated the lambertian factor
-    let b = l % n;
+    let mut b = l % n;
 
     // Calculate the illumination factor.  Trace a ray from intersection to the light source to
     // make sure it reaches.
-    let (i, t, n) = T(h, l);
+    let (i, _, _) = T(h, l);
     if(b < 0.0 || i > 0) {
-        b = 0;
+        b = 0.0;
     }
 
     // calculate illumination factor
-    let p: f64 = pow(l % r * (b>0), 99);
+    let p: f64 = pow(l % r * (if(b > 0.0) {1.0} else {0.0}), 99);
 
     if(m == 1) { 
         // no sphere was hit and ray is going down.  Generate floor color
         h = h * 0.2;
-        return (if(((h.x).ceil()+(h.y).ceil()) as u32 & 1) {
+        return (if(((h.x).ceil()+(h.y).ceil()) as u64 & 1 == 1) {
                 Vec3::new(3.0, 1.0, 1.0)
             } else {
                 Vec3::new(3.0, 3.0, 3.0)
@@ -150,8 +150,8 @@ fn T(o: Vec3, d: Vec3) -> (u8, f64, Vec3) {
     let mut t: f64  = 1e9;
     let mut i: u8   = 0;
     let mut p: f64  = o.z / d.z;
-    let mut n: Vec3;
-    let mut m: u8;
+    let mut n: Vec3 = Vec3::origin();
+    let mut m: u8 = 0;
 
     if(0.01<p) {
         t = p;
@@ -164,10 +164,10 @@ fn T(o: Vec3, d: Vec3) -> (u8, f64, Vec3) {
             if(G[j] & 1 << k != 0) { // for this line j, is there a sphere at column i?
                 let p: Vec3 = o + Vec3::new(-k as f64, 0.0, (-j-4) as f64);
                 let b: f64 = p % d;
-                let c: f64 = p % p - 1;
+                let c: f64 = p % p - 1.0;
                 let q: f64 = b * b - c;
 
-                if(q > 0) {
+                if(q > 0.0) {
                     let s: f64 = -b - q.sqrt();
                     if(s < t && s > 0.01) {
                         t = s;
