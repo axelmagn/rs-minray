@@ -1,5 +1,5 @@
 [package]
 
-name = "rs-raytracer"
+name = "rs-minray"
 version = "0.0.1"
 authors = ["Axel Magnuson <axelmagn@gmail.com>"]
