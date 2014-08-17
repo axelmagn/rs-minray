@@ -10,16 +10,16 @@ pub fn r() -> f64 {
     rng.gen::<f64>()
 }
 
-static G: &'static [i32] = &[247570,280596,280600,249748,18578,18577,231184,16,16];
+static G: &'static [u32] = &[247570,280596,280600,249748,18578,18577,231184,16,16];
 
 // (S)ample the world and return the pixel color for a ray passing by point o (Origin) and d
 // (Direction)
 pub fn sample(o: Vec3, d: Vec3) -> Vec3 {
-    debug!("s() received input:\t(o={}, d={})", o, d);
+    // debug!("s() received input:\t(o={}, d={})", o, d);
 
     // search for an intersection ray vs World.
     let (m, t, n) = trace(o, d);
-    debug!("s() received trace:\t(m={}, t={}, n={})",m,t,n);
+    // debug!("s() received trace:\t(m={}, t={}, n={})",m,t,n);
 
     if m == 0 {
         // No sphere was found and the ray goes upward.  Generate a sky color.
@@ -28,10 +28,10 @@ pub fn sample(o: Vec3, d: Vec3) -> Vec3 {
 
     // A sphere was maybe hit
     
-    let mut h: Vec3 = o + d * t;                                  // h = intersection coordinate
+    let mut h: Vec3 = o + d * t;                        // h = intersection coordinate
     let l = !(Vec3::new(9.0+r(),9.0+r(),16.0)+h*-1.0);  // direction to the light (with random 
                                                         // delta for soft shadows
-    let r = d+n * (n % d * -2.0);                             // the half-vector
+    let r = d+n * (n % d * -2.0);                       // the half-vector
     
     // Calculated the lambertian factor
     let mut b = l % n;
@@ -78,9 +78,12 @@ fn trace(o: Vec3, d: Vec3) -> (u8, f64, Vec3) {
         m = 1;
     }
 
+    let mut spheres_found = 0u;
+
     for k in range_step(18u, -1, -1) {
         for j in range_step(8u, -1, -1) {
-            if G[j] & 1 << k != 0 { // for this line j, is there a sphere at column i?
+            if G[j] & (1 << k) != 0 { // for this line j, is there a sphere at column i?
+                spheres_found += 1;
                 // there is a sphere, but does the ray hit it?
                 let p: Vec3 = o + Vec3::new(-(k as f64), 0.0, -(j as f64)-4.0);
                 let b: f64 = p % d;
@@ -102,6 +105,10 @@ fn trace(o: Vec3, d: Vec3) -> (u8, f64, Vec3) {
                 }
             }
         }
+    }
+
+    if spheres_found > 0 {
+        // debug!("Spheres found: {}", spheres_found);
     }
 
     return (m, t, n);

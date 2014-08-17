@@ -12,7 +12,8 @@ mod vec3;
 mod trace;
 
 fn main() {
-    print!("P6 512 512 255 ");  // PPM Header
+    let mut stdout = std::io::stdout();
+    stdout.write_str("P6 512 512 255 ").unwrap();  // PPM Header
 
     let g = !Vec3::new(-6.0,-16.0,0.0);           // Camera direction
     let a = !(Vec3::new(0.0,0.0,1.0)^g)*0.002;    // Camera up vector
@@ -36,6 +37,7 @@ fn main() {
                 // Accumulate the color returned in the p variable
                 let o = Vec3::new(17.0,16.0,8.0)+t;                 // Ray Origin
                 let d = !(t*-1.0+(a*(r()+xf)+b*(yf+r())+c)*16.0);   // ray direction w. random del    
+                /*
                 debug!("g = {}", g);
                 debug!("a = {}", a);
                 debug!("b = {}", b);
@@ -44,11 +46,14 @@ fn main() {
                 debug!("t = {}", t);
                 debug!("o = {}", o);
                 debug!("d = {}", d);
+                */
                 p = sample( o, d)*3.5+p;    // +p for color accumulation
-                debug!("p = {}", p);
+                // debug!("p = {}", p);
             }
-            // print!("\n\t{}{}{}:\t", p.x, p.y, p.z); // DEBUG
-            print!("{}{}{}", p.x as u8 as char, p.y as u8 as char, p.z as u8 as char);
+            let r =  p.x as u8;
+            let g =  p.y as u8;
+            let b =  p.z as u8;
+            stdout.write([r,g,b]).unwrap();
         }
     }
 }
