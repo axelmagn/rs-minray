@@ -1,6 +1,6 @@
 use std::rand::Rng;
 use std::rand;
-use std::iter::range_step;
+// use std::iter::range_step;
 use std::num::{pow, Float};
 
 use vec3::Vec3;
@@ -10,7 +10,17 @@ pub fn r() -> f64 {
     rng.gen::<f64>()
 }
 
-static G: &'static [u32] = &[247570,280596,280600,249748,18578,18577,231184,16,16];
+static G: &'static [uint] = &[
+    0b0000000000000000000u,
+    0b0111001111001000100u,
+    0b1000101000101101100u,
+    0b1000101000101010100u,
+    0b1111101000101000100u,
+    0b1000101000101000100u,
+    0b1000101000101000100u,
+    0b1000101111001000100u,
+    0b0000000000000000000u,
+];
 
 // (S)ample the world and return the pixel color for a ray passing by point o (Origin) and d
 // (Direction)
@@ -80,12 +90,13 @@ fn trace(o: Vec3, d: Vec3) -> (u8, f64, Vec3) {
 
     let mut spheres_found = 0u;
 
-    for k in range_step(18u, -1, -1) {
-        for j in range_step(8u, -1, -1) {
+    for k in range(0u, 19u) {
+        for j in range(0u, 9u) {
+            // debug!("(j={}, k={})", j, k);
             if G[j] & (1 << k) != 0 { // for this line j, is there a sphere at column i?
                 spheres_found += 1;
                 // there is a sphere, but does the ray hit it?
-                let p: Vec3 = o + Vec3::new(-(k as f64), 0.0, -(j as f64)-4.0);
+                let p: Vec3 = o + Vec3::new(-(k as f64), 0.0, -((9-j) as f64)-4.0);
                 let b: f64 = p % d;
                 let c: f64 = p % p - 1.0;
                 let q: f64 = b * b - c;
@@ -116,5 +127,23 @@ fn trace(o: Vec3, d: Vec3) -> (u8, f64, Vec3) {
 
 #[cfg(test)]
 mod test {
+
+    use vec3::Vec3;
+    use trace::{r,sample,trace};
+
+    #[test]
+    fn test_r_runs() {
+        r();
+    }
+
+    #[test]
+    fn test_sample_runs() {
+        sample(Vec3::origin(), Vec3::origin());
+    }
+
+    #[test]
+    fn test_trace_runs() {
+        trace(Vec3::origin(), Vec3::origin());
+    }
 
 }

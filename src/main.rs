@@ -11,6 +11,7 @@ use trace::sample;
 mod vec3;
 mod trace;
 
+#[allow(dead_code)]
 fn main() {
     let mut stdout = std::io::stdout();
     stdout.write_str("P6 512 512 255 ").unwrap();  // PPM Header
